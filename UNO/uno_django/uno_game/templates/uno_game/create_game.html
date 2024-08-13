@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Uno Game</title>
+
+</head>
+<body>
+    <h1>Create a New Uno Game</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>Game Setup</legend>
+
+            <div>
+                <label for="player_count">Number of Players:</label>
+                <input type="number" id="player_count" name="player_count" min="2" max="10" required>
+            </div>
+
+            <div id="player_names_container">
+                <!-- Player names inputs will be dynamically added here -->
+            </div>
+
+            <button type="submit">Start Game</button>
+        </fieldset>
+    </form>
+
+    <script>
+        document.getElementById('player_count').addEventListener('change', function() {
+            const playerCount = this.value;
+            const container = document.getElementById('player_names_container');
+
+            // Clear any existing inputs
+            container.innerHTML = '';
+
+            for (let i = 1; i <= playerCount; i++) {
+                const inputDiv = document.createElement('div');
+                inputDiv.innerHTML = `
+                    <label for="player_${i}">Player ${i} Nickname:</label>
+                    <input type="text" id="player_${i}" name="player_${i}" required>
+                `;
+                container.appendChild(inputDiv);
+            }
+        });
+    </script>
+</body>
+</html>

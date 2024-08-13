@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Uno Game</title>
+</head>
+<body>
+    <h1>Uno Game</h1>
+    <p>Current Player: {{ current_player.nickname }}</p>
+    <div>
+        <h2>Table</h2>
+        <p>Top Card: {{ game.table.get_top_card }}</p>
+    </div>
+    <div>
+        <h2>{{ current_player.nickname }}'s Hand</h2>
+        <ul>
+            {% for card in current_player.hands.all %}
+                <li>{{ card }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- Form to play a card or draw a card -->
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="action" value="play">Submit</button>
+    </form>
+    <!-- Button to move to the next player -->
+    <form method="post" action="{% url 'next_player' game_id=game.id %}">
+        {% csrf_token %}
+        <button type="submit">Next Player</button>
+    </form>
+</body>
+</html>
