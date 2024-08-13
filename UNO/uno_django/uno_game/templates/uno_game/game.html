@@ -18,12 +18,14 @@
             {% endfor %}
         </ul>
     </div>
+
     <!-- Form to play a card or draw a card -->
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" name="action" value="play">Submit</button>
     </form>
+
     <!-- Button to move to the next player -->
     <form method="post" action="{% url 'next_player' game_id=game.id %}">
         {% csrf_token %}

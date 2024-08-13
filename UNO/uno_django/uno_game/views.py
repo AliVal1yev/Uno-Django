@@ -24,7 +24,6 @@ def game_view(request, game_id):
     game = Game.objects.get(id=game_id)
     current_player = game.get_current_player()
     
-    
     if request.method == 'POST':
         form = PlayCardForm(request.POST)
         if form.is_valid():
@@ -40,7 +39,9 @@ def game_view(request, game_id):
 
             if card:
                 if game.table.check_card_validness(card):
+                    print(f"Adding card {card} to table")  # Debugging line
                     game.table.add_card(card)
+                    print(f"Top card on table: {game.table.get_top_card()}")
                     current_player.hands.remove(card)
                     
                     # Handle action cards
@@ -63,11 +64,11 @@ def game_view(request, game_id):
                         if card.body == '+4':
                             # Handle color change and draw 4 cards
                             ask_color(request, game)
+                            next_player = game.get_next_player()
                             for _ in range(4):
                                 if game.deck.exists():
                                     new_card = game.deck.first()
                                     game.deck.remove(new_card)
-                                    next_player = game.get_next_player()
                                     next_player.hands.add(new_card)
                         elif card.body == '⊕':
                             # Handle color change
@@ -82,11 +83,13 @@ def game_view(request, game_id):
                         
                 else:
                     form.add_error(None, "Invalid card. Please choose a valid card.")
+        else:
+            form.add_error(None, "Form is invalid.")
 
     else:
         form = PlayCardForm()
 
-    form.fields['card'].queryset = current_player.hands.all() 
+    form.fields['card'].queryset = current_player.hands.all()
 
     return render(request, 'uno_game/game.html', {
         'game': game,
@@ -95,17 +98,20 @@ def game_view(request, game_id):
     })
 
 
+
 def ask_color(request, game):
+    # Example of how you might implement color selection
+    colors = dict(Card.COLOR_CHOICES)
     if request.method == 'POST':
-        form = ColorChoiceForm(request.POST)
-        if form.is_valid():
-            selected_color = form.cleaned_data['color']
-            # Implement logic to change the color for wild cards
-            pass
-        return redirect('game_view', game_id=game.id)
+        selected_color = request.POST.get('selected_color')
+        # Apply color change to the top card on the table
+        top_card = game.table.get_top_card()
+        top_card.color = selected_color
+        top_card.save()
+        return True  # Indicate that color was successfully changed
     else:
-        form = ColorChoiceForm()
-    return render(request, 'uno_game/color_choice.html', {'form': form})
+        # Render a template or modal to ask the player for a new color
+        return render(request, 'uno_game/ask_color.html', {'colors': colors})
 
 
 def create_game(request):

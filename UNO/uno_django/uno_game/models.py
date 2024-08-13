@@ -38,13 +38,16 @@ class Table(models.Model):
     content = models.ManyToManyField(Card, blank=True)
 
     def get_top_card(self):
-        return self.content.last() if self.content.exists() else None
+        return self.content.order_by('id').last() if self.content.exists() else None
+
 
     def has_any_cards(self):
         return self.content.exists()
 
     def add_card(self, card):
         self.content.add(card)
+        print(f"Cards on table after adding: {self.content.all()}")  # Debugging line
+
 
     def card_matches(self, player_card):
         last_card = self.get_top_card()
